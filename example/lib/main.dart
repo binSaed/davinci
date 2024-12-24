@@ -72,8 +72,6 @@ class AppState extends State<App> {
                     context: context,
                     imageKey!,
                     pixelRatio: 3,
-                    saveToDevice: true,
-                    openFilePreview: false,
                     albumName: "Davinci",
                   );
                 },

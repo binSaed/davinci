@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:davinci/core/brandtag_configuration.dart';
@@ -7,9 +6,6 @@ import 'package:davinci/core/davinci_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:gal/gal.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:path_provider/path_provider.dart';
 
 enum _Source { click, offStage }
 
@@ -22,8 +18,6 @@ class DavinciCapture {
   static Future click(GlobalKey key,
       {String fileName = 'davinci',
       required BuildContext context,
-      bool openFilePreview = true,
-      bool saveToDevice = false,
       String? albumName,
       double? pixelRatio,
       bool returnImageUint8List = false}) async {
@@ -39,9 +33,7 @@ class DavinciCapture {
         albumName: albumName,
         source: _Source.click,
         fileName: fileName,
-        saveToDevice: saveToDevice,
         returnImageUint8List: returnImageUint8List,
-        openFilePreview: openFilePreview,
         repaintBoundary: repaintBoundary,
         pixelRatio: pixelRatio,
       );
@@ -59,8 +51,6 @@ class DavinciCapture {
   /// Context is required.
   static Future offStage(Widget widget,
       {Duration? wait,
-      bool openFilePreview = true,
-      bool saveToDevice = false,
       String fileName = 'davinci',
       String? albumName,
       double? pixelRatio,
@@ -131,6 +121,8 @@ class DavinciCapture {
         child: Directionality(
           textDirection: TextDirection.ltr,
           child: Column(
+            // fix the size of the image
+            mainAxisSize: MainAxisSize.min,
             // image is center aligned
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -171,12 +163,10 @@ class DavinciCapture {
       /// we start the createImageProcess once we have the repaintBoundry of
       /// the widget we attached to the widget tree.
       return await _createImageProcess(
-          saveToDevice: saveToDevice,
           albumName: albumName,
           fileName: fileName,
           returnImageUint8List: returnImageUint8List,
           source: _Source.offStage,
-          openFilePreview: openFilePreview,
           repaintBoundary: repaintBoundary,
           pixelRatio: pixelRatio);
     } catch (e) {
@@ -186,12 +176,10 @@ class DavinciCapture {
 
   /// create image process
   static Future _createImageProcess(
-      {bool? saveToDevice,
-      String? albumName,
+      {String? albumName,
       String? fileName,
       required _Source source,
       bool? returnImageUint8List,
-      bool? openFilePreview,
       RenderRepaintBoundary? repaintBoundary,
       double? pixelRatio}) async {
     // the boundary is converted to Image.
@@ -206,56 +194,9 @@ class DavinciCapture {
     /// The byteData is converted to uInt8List image aka memory Image.
     final Uint8List u8Image = byteData!.buffer.asUint8List();
 
-    if (saveToDevice!) {
-      _saveImageToDevice(albumName, fileName!);
-    }
-
     /// If the returnImageUint8List is true, return the image as uInt8List
     if (returnImageUint8List!) {
       return u8Image;
     }
-
-    /// if the openFilePreview is true, open the image in openFile
-    if (openFilePreview!) {
-      await _openImagePreview(u8Image, fileName!);
-    }
-  }
-
-  static Future _openImagePreview(Uint8List u8Image, String imageName) async {
-    /// getting the temp directory of the app.
-
-    String dir = (kIsWeb
-            ? await getDownloadsDirectory()
-            : await getApplicationDocumentsDirectory())!
-        .path;
-
-    /// Saving the file with the file name in temp directory.
-    File file = File('$dir/$imageName.png');
-
-    /// the image file is created
-    await file.writeAsBytes(u8Image);
-
-    /// The image file is opened.
-    await OpenFilex.open(
-      '$dir/$imageName.png',
-    );
-
-    return file;
-  }
-
-  /// To save the images locally
-  static void _saveImageToDevice(String? album, String imageName) async {
-    /// getting the temp directory of the app.
-    String dir = (kIsWeb
-            ? await getDownloadsDirectory()
-            : await getApplicationDocumentsDirectory())!
-        .path;
-
-    /// Saving the file with the file name in temp directory.
-    File file = File('$dir/$imageName.png');
-
-    /// The image is saved with the file path and to the album if defined,
-    /// if the album is null, it saves to the all pictures.
-    await Gal.putImage(file.path, album: album);
   }
 }
