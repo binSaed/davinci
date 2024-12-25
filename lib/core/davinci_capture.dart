@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:davinci/core/brandtag_configuration.dart';
 import 'package:davinci/core/davinci_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -70,43 +70,15 @@ class DavinciCapture {
         View.of(context).physicalSize / View.of(context).devicePixelRatio;
     pixelRatio ??= View.of(context).devicePixelRatio;
     try {
-      final RenderView renderView;
-      if (kIsWeb) {
-        renderView = RenderView(
-          view: ui.PlatformDispatcher.instance.implicitView!,
-          child: RenderPositionedBox(
-            alignment: Alignment.center,
-            child: repaintBoundary,
-          ),
-          configuration: ViewConfiguration(
-            //size: logicalSize,
-            logicalConstraints: BoxConstraints(
-              minWidth: logicalSize.width,
-              maxWidth: logicalSize.width,
-              minHeight: logicalSize.height,
-              maxHeight: logicalSize.height,
-            ),
-            devicePixelRatio: 1.0,
-          ),
-        );
-      } else {
-        renderView = RenderView(
-          view: View.of(context),
-          child: RenderPositionedBox(
-              alignment: Alignment.center, child: repaintBoundary),
-          configuration: ViewConfiguration(
-            logicalConstraints: BoxConstraints(
-              maxWidth: logicalSize.width,
-              maxHeight: logicalSize.height,
-            ),
-            physicalConstraints: BoxConstraints(
-              maxWidth: logicalSize.width,
-              maxHeight: logicalSize.height,
-            ),
-            devicePixelRatio: 1.0,
-          ),
-        );
-      }
+      final RenderView renderView = RenderView(
+        view: View.of(context),
+        child: RenderPositionedBox(
+            alignment: Alignment.center, child: repaintBoundary),
+        configuration: ViewConfiguration(
+          size: logicalSize,
+          devicePixelRatio: 1.0,
+        ),
+      );
 
       /// setting the rootNode to the renderview of the widget
       pipelineOwner.rootNode = renderView;

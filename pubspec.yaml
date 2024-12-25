@@ -1,26 +1,23 @@
 name: davinci
 description: A package to convert any widget to an image which can be saved locally or can be shared to other apps and chats.
-version: 2.5.1
-homepage: https://gokula.dev
-repository: https://github.com/Imgkl/Davinci
-issue_tracker: https://github.com/Imgkl/Davinci/issues
-topics: [screenshots, image-capture, dynamic-image-generation]
+version: 2.1.1
+homepage: https://github.com/Imgkl/davinci
 
 environment:
-  sdk: ">=3.4.0 <4.0.0"
+  sdk: '>=2.12.0 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
   flutter:
     sdk: flutter
+#  path_provider: ^2.0.15
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-flutter:
+# For information on the generic Dart part of this file, see the
+# following page: https://dart.dev/tools/pub/pubspec
 
-platforms:
-  android:
-  ios:
-  web:
+# The following section is specific to Flutter.
+flutter:
